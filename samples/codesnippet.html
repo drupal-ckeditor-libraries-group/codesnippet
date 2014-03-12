@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
+-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>CodeSnippet &mdash; CKEditor Sample</title>
+	<script src="../../../ckeditor.js"></script>
+	<link href="../../../samples/sample.css" rel="stylesheet">
+</head>
+<body>
+	<h1 class="samples">
+		<a href="../../../samples/index.html">CKEditor Samples</a> &raquo; CodeSnippet
+	</h1>
+
+	<h2>Default snippet highlighting with highlight.js</h2>
+	<p>By default <code>codesnippet</code> plugin uses client-side highlight.js library. You can adjust it's appearance using <code>codesnippet_template</code> config variable.</p>
+	<p>
+		Select template:
+		<select id="templateSelect"></select>
+	</p>
+
+	<pre class="samples" id="sampleConfig">CKEDITOR.replace( 'editor1', {
+	plugins: 'wysiwygarea,clipboard,toolbar,sourcearea,htmlwriter,basicstyles,enterkey,codesnippet',
+	height: 440
+} );</pre>
+
+	<textarea id="editor1">
+&lt;p&gt;A bit of JS:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-php&quot;&gt;&amp;lt;?php
+isset( $foo );
+# Comment
+// Comment2
+function foo( $bar ) {
+  if ( $bar &amp;gt; 3 ) {
+   echo &quot;aaa&quot;;
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;quick sql&lt;/p&gt;
+&lt;pre&gt;
+&lt;code class=&quot;language-sql&quot;&gt;SELECT cust.id, cust.name, loc.city FROM cust LEFT JOIN loc ON ( cust.loc_id = loc.id ) GROUP BY cust.type WHERE cust.type IN ( 1, 2, 3, 4, 5 );&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A bit of uknown markup:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;moo(); &lt;strong&gt;// Why not cow?&lt;/strong&gt;
+&lt;/code&gt;&lt;/pre&gt;
+	</textarea>
+
+	<h2>Server-side highlighter</h2>
+	<p>You can extend highlighting functinallity by creating your own plugin which will take care of syntax highlighting. In this case we will use <code>codesnippetgeshi</code> plugin in order to use GeSHi as highlight provider.</p>
+	<p>In this case we will also use <code>codesnippet_langs</code> config variable, to reduce available languages list.</p>
+
+	<pre class="samples">CKEDITOR.replace( 'editor2', {
+	plugins: 'wysiwygarea,clipboard,toolbar,sourcearea,htmlwriter,basicstyles,enterkey,codesnippet,codesnippetgeshi',
+	height: 440,
+	codesnippet_langs: {
+		html4strict: 'HTML',
+		html5: 'HTML5',
+		javascript: 'JavaScript',
+		php: 'PHP',
+		sql: 'SQL'
+	}
+} );</pre>
+
+	<textarea id="editor2">
+&lt;p&gt;A bit of JS:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-php&quot;&gt;&amp;lt;?php
+isset( $foo );
+# Comment
+// Comment2
+function foo( $bar ) {
+  if ( $bar &amp;gt; 3 ) {
+   echo &quot;aaa&quot;;
+  }
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;quick sql&lt;/p&gt;
+&lt;pre&gt;
+&lt;code class=&quot;language-sql&quot;&gt;SELECT cust.id, cust.name, loc.city FROM cust LEFT JOIN loc ON ( cust.loc_id = loc.id ) GROUP BY cust.type WHERE cust.type IN ( 1, 2, 3, 4, 5 );&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;A bit of uknown markup:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;moo(); &lt;strong&gt;// Why not cow?&lt;/strong&gt;
+&lt;/code&gt;&lt;/pre&gt;
+	</textarea>
+
+	<script>
+		( function() {
+			// Default editor initialization, this one will have no template assigned,
+			// so it will get default template.
+			CKEDITOR.replace( 'editor1', {
+				plugins: 'wysiwygarea,clipboard,toolbar,sourcearea,htmlwriter,basicstyles,enterkey,codesnippet',
+				height: 440
+			} );
+
+			// Second editor, using snippetgeshi plugin.
+			CKEDITOR.replace( 'editor2', {
+				plugins: 'wysiwygarea,clipboard,toolbar,sourcearea,htmlwriter,basicstyles,enterkey,codesnippet,codesnippetgeshi',
+				height: 440,
+				codesnippet_langs: {
+					html4strict: 'HTML',
+					html5: 'HTML5',
+					javascript: 'JavaScript',
+					php: 'PHP',
+					sql: 'SQL'
+				}
+			} );
+
+			var templates = [ 'default', 'arta', 'ascetic', 'atelier-dune.dark', 'atelier-dune.light', 'atelier-forest.dark', 'atelier-forest.light', 'atelier-heath.dark', 'atelier-heath.light', 'atelier-lakeside.dark', 'atelier-lakeside.light', 'atelier-seaside.dark', 'atelier-seaside.light', 'brown_paper', 'dark', 'docco', 'far', 'foundation', 'github', 'googlecode', 'idea', 'ir_black', 'magula', 'mono-blue', 'monokai', 'monokai_sublime', 'obsidian', 'paraiso.dark', 'paraiso.light', 'pojoaque', 'railscasts', 'rainbow', 'school_book', 'solarized_dark', 'solarized_light', 'sunburst', 'tomorrow-night-blue', 'tomorrow-night-bright', 'tomorrow-night-eighties', 'tomorrow-night', 'tomorrow', 'vs', 'xcode', 'zenburn' ];
+
+			var templateSelect = document.getElementById( 'templateSelect' ),
+				// This function will encapsulate all the logic needed to replace first
+				// editor with template picked in select.
+				createTemplatedEditor = function( snippetTemplateName ) {
+					if ( CKEDITOR.instances.editor1 )
+						CKEDITOR.instances.editor1.destroy();
+
+					CKEDITOR.replace( 'editor1', {
+						plugins: 'wysiwygarea,clipboard,toolbar,sourcearea,htmlwriter,basicstyles,enterkey,codesnippet',
+						height: 440,
+						codesnippet_template: snippetTemplateName
+					} );
+
+					// Update code sample, it picks only specific lines, and replaces
+					// snippetTemplateName to actually picked value, wrapping it with
+					// quotes.
+					document.getElementById( 'sampleConfig' ).innerHTML = String( createTemplatedEditor ).split( "\n" ).slice( 4, 9 ).join( "\n" ).replace( /^\t{5}/gm, '' ).replace( 'snippetTemplateName', "'" + snippetTemplateName + "'" );
+				};
+
+			// Filling up options in template select.
+			for ( var i=0; i < templates.length; i++ ) {
+				var curTemplate = templates[ i ];
+				templateSelect.innerHTML += '<option value="'+curTemplate+'">'+curTemplate+'</option>';
+			}
+
+			templateSelect.onchange = function() {
+				createTemplatedEditor( this.value );
+			};
+		}() );
+	</script>
+
+	<div id="footer">
+		<hr>
+		<p>
+			CKEditor - The text editor for the Internet - <a class="samples" href="http://ckeditor.com/">http://ckeditor.com</a>
+		</p>
+		<p id="copy">
+			Copyright &copy; 2003-2014, <a class="samples" href="http://cksource.com/">CKSource</a> - Frederico
+			Knabben. All rights reserved.
+		</p>
+	</div>
+</body>
+</html>
